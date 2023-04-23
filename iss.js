@@ -26,5 +26,31 @@ const fetchMyIP = function(callback) {
 };
 
 
+const fetchCoordsByIP = function(ip, callback) {
+  // use request to fetch IP address from JSON API
+  const url = `http://ipwho.is/${ip}`;
 
-module.exports = { fetchMyIP };
+  request(url, (error, response, body) => {
+
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    const parsedBody = JSON.parse(body);
+    // check if "success" is true or not
+    if (!parsedBody.success) {
+      const message = `Success status was ${parsedBody.success}. Server message says: ${parsedBody.message} when fetching for IP ${parsedBody.ip}`;
+      callback(Error(message), null);
+      return;
+    }
+    // else {
+    const { latitude, longitude } = parsedBody;
+
+    callback(null, { latitude, longitude });
+    // }
+  });
+};
+
+
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
